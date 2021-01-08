@@ -1,0 +1,94 @@
+You are given a string S consisting of lowercase alphabets. Find the minimum number of characters that must be changed to make S special. A string S is said to be special if and only if for all (S[i] , S[j] ) where (1 ≤ i ≤ N/2) and (N/2 + 1 ≤ j ≤ N), one of the following condition is true 
+
+S[i] > S[j]
+S[i] < S[j]
+S[i] = S[j]
+S[i] represents the ith character of string S according to 1 based Indexing.
+
+
+Example 1:
+
+Input: S = "aababc"
+Output: 2
+Explanation:
+Change S[4] to ‘d’ New S = ‘aabdbc’ 
+Change S[5] to ‘d’ New S = ‘aabddc’ 
+Now all (S[i],S[j]) pairs satisfy the 
+second condition, S[i] < S[j]
+
+Your Task:
+You don't need to read input or print anything. Your task is to complete the function solve() which takes string S as input parameter and returns the minimum number of characters that must be changed to make S special.
+
+ 
+
+Expected Time Complexity: O(|S|)
+Expected Auxiliary Space: O(1)
+
+
+Constraints:
+1 <= |S| <= 1e5
+|S| % 2 = 0
+
+ 
+
+
+
+Solution:
+
+class Solution{   
+public:
+    int solve(string S){
+        // Stores the frequency of the
+        // left & right half of string
+    	int L[26] = {0};
+    	int R[26] = {0};
+    	
+    	int n = S.size();
+    
+    	// Find frequency of left half
+    	for(int i=0;i<n/2;i++){
+    		char ch = S[i];
+    		L[ch-'a'] += 1;
+    	}
+    
+        // Find frequency of left half
+    	for(int i=n/2;i<n;i++){
+    		char ch = S[i];
+    		R[ch -'a'] += 1;
+    	}
+    
+    	int count = n;
+    
+    	// Make all characters equal
+    	// to character c
+    	for(char ch='a';ch<='z';ch++)
+    	    count = min(count, n - L[ch - 'a'] -R[ch - 'a']);
+    	
+    	// Case 1: For s[i] < s[j]
+    	int change = n / 2;
+    	for(int d=0;d<26;d++){
+    	    
+    	    // Subtract all the characters
+    		// on left side that are <=d
+    		change -= L[d];
+    
+    		// Adding all characters on the
+    		// right side that same as d
+    		change += R[d];
+    
+    		// Find minimum value of count
+    		count = min(count, change);
+    	}
+    	
+    	// Similarly for Case 2: s[i] > s[j]
+    	change = n / 2;
+    	for(int d=0;d<26;d++){
+    		change -= R[d];
+    		change += L[d];
+    		count = min(change, count);
+    	}
+    
+    	// Return the minimum changes
+    	return count;
+    }
+};
