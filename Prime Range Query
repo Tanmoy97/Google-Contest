@@ -1,0 +1,140 @@
+You are given an array A[ ] of size N, answer Q queries such that each query consists of a pair (L, R) and you have to determine the count of distinct prime numbers which divides all the numbers in the subarray from A[L] to A[R].
+Note: L and R denote the 1-based indices in array A[ ].
+
+
+Example 1:
+
+Input:
+N = 5
+A[] = {2, 4, 6, 1, 9}
+Q = 3
+Query={{1, 5}, {3, 3} , {2, 3}}
+Output:
+0
+2
+1
+Explanation:
+In query 1 ,there is no prime number 
+which divides all the numbers from 
+indices 1 to 5.
+
+In query 2, there are two prime number 
+(2, 3) which divides  A[3] 
+
+In query 3, there is only one prime 
+number (2) which divides A[2] and A[3].
+
+Your Task: 
+You don't need to read input or print anything. Your task is to complete the function solve() which takes the size of array N, array A[ ], number of queries Q and the list of queries Query[ ][ ] as input parameters and returns a list of integers containing the numeric answer for each query.
+Note: To reduce the overall time complexity of your solution, design a non parameterised constuctor of the class Solution to pre-calculate and store all the prime numbers. Then use the stored prime numbers in solve(). 
+
+
+Expected Time Complexity: O( Max(A[i])*Log(A[i]) + N*LogN + Q*LogN )
+Expected Auxiliary Space: O( Max(A[i]) + NLogN )
+ 
+
+Constraints:
+1 ≤ N ≤ 105 
+1 ≤ Q ≤ 105 
+1 ≤ A[i] ≤ 105
+1 ≤ L, R ≤ N
+
+Solution:
+
+class Solution{   
+public:
+
+    static const long long mxn=1e5+5;
+    vector<vector<int>> v;
+    vector<vector<array<int,2>>> range;
+    vector<int> prime;
+    Solution()
+    {
+          v=vector<vector<int>>(mxn);
+          prime=vector<int>(mxn);
+          range=vector<vector<array<int,2>>>(mxn);
+          for(long long i=2;i<mxn;i++)
+          {
+            if(!prime[i])
+            {
+              for(long long j=1;j*i<mxn;j++)
+                prime[j*i]=i;
+            }
+          }
+    }
+    vector<int> solve(int N, vector<int> A,int Q,vector<vector<int>> Query){    
+   
+      set<int> present_prime;
+      vector<int> res(Q);
+      for(int i=0;i<N;i++)
+      {
+        int x=A[i];
+        while(x>1)
+        {
+          int p=prime[x];
+          present_prime.insert(p);
+          while(x%p==0)
+            x/=p;
+          v[p].push_back(i);
+        }
+      }    
+
+      int l,r;
+      for(auto i:present_prime)
+      {
+        if(prime[i]==i)
+        {
+          for(int j=0;j<v[i].size();j++)
+          {
+            l=v[i][j];
+            r=v[i][j];
+            while(j+1<v[i].size()&&v[i][j+1]==v[i][j]+1)
+            {
+              j++;
+              r++;
+            }
+            range[i].push_back({l,r});
+          }
+        }
+      }
+
+      for(int i=0;i<Q;i++)
+      {
+        l=Query[i][0]-1;
+        r=Query[i][1]-1;
+        vector<int> possible_prime;
+        int x=A[l];
+        while(x>1)
+        {
+          int p=prime[x];
+          possible_prime.push_back(p);
+          while(x%p==0) x/=p;
+        }
+
+        for(auto j:possible_prime)
+        {
+          int ok=0;
+          //checking the prime ,Is possible or not
+          auto it=lower_bound(range[j].begin(),range[j].end(),array<int,2>{l+1,0});
+          if(it!=range[j].begin())
+          {
+            --it;
+            if((*it)[1]>=r)
+              ok=1;
+          }
+          if(ok)
+          {
+              res[i]++;
+          }
+        }
+      }
+      
+      for(auto i:present_prime)
+      {
+          v[i].clear();
+          range[i].clear();
+      }
+
+      return res;
+    }
+};
