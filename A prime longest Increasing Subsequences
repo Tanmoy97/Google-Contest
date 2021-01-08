@@ -1,0 +1,105 @@
+You are given an array A[ ] of N elements .
+For any A[i] (1 ≤ i ≤ N), you must select one of the following tasks:
+
+Convert the value of A[i] to the largest prime number less than or equal to A[i].
+Convert the value of A[i] to the smallest prime number greater than or equal to A[i].
+Find the longest strictly increasing subsequence consisting of all prime numbers in A[ ] after applying one of the provided tasks on all elements of A[ ].
+
+Note: B = {Ai1, Ai2, Ai3, ... , Aik} is called an increasing subsequence of A when 1 ≤ i1 < i2 <  i3 < ... ik ≤ N and B is sorted in ascending order. An increasing subsequence is called longest if it has the maximum length among all other increasing subsequences.
+
+Example 1:
+
+Input:
+N = 5 
+A[] = {8, 6, 9, 2, 5}
+Output:
+2
+Explanation:
+For every element of the array,
+you can change it as follows:
+8: 7 or 11
+6: 5 or 7
+9: 7 or 11
+2: 2 (element is itself a prime number)
+5: 5 (element is itself a prime number)
+You can select subsequence (2, 5) from 
+the array whose length is 2, there cannot 
+be any longest increasing subsequences of 
+length greater than 2. 
+Your Task: 
+You don't need to read input or print anything. Your task is to complete the function solve() which takes the integer N and array A[ ] as input parameters and returns the length of longest strictly increasing subsequence in the array after applying one of the above tasks on all elements of A[ ].
+
+Expected Time Complexity: O(Mx*Log(Log(Mx))  + N*N)
+Expected Auxiliary Space: O(Mx + N)
+Where Mx is the maximum element present in the array A[i].
+
+Constraints:
+1 ≤ N ≤ 1000
+2 ≤ A[i] ≤ 106
+
+
+
+Solution:
+
+class Solution{   
+public:
+
+    vector<int> prime,prevPrime,nxtPrime;
+    vector<array<int,2>> last;
+
+    Solution()
+    {
+      int mxa=1e6+100;
+      prevPrime=vector<int>(mxa);
+      nxtPrime=vector<int>(mxa);
+      prime=vector<int>(mxa);
+      for(int i=2;i<mxa;i++)
+      { 
+        if(!prime[i])
+        {
+          for(int j=2;j*i<mxa;j++)
+            prime[j*i]=1;
+        }
+      }
+
+      for(int i=2;i<mxa;i++)
+      {
+        prevPrime[i]=prevPrime[i-1];
+        if(!prime[i])
+          prevPrime[i]=i;
+      }
+      for(int i=mxa-2;i>=2;i--)
+      {
+        nxtPrime[i]=nxtPrime[i+1];
+        if(!prime[i])
+          nxtPrime[i]=i;
+      }
+    }
+
+
+    int maxLengthSubsequnceEndAtX(int X)
+    {
+      int mx=0;
+      for(auto i:last)
+      {
+        if(i[0]<X)
+          mx=max(mx,i[1]);
+      }
+      return mx;
+    }
+
+    int solve(int N,vector<int> A){
+    
+      int answer=0;
+      for(auto i:A)
+      {
+        int x=maxLengthSubsequnceEndAtX(prevPrime[i]);
+        int y=maxLengthSubsequnceEndAtX(nxtPrime[i]);
+        last.push_back({prevPrime[i],x+1});
+        last.push_back({nxtPrime[i],y+1});
+        answer=max({answer,x+1,y+1});
+      }
+      last.clear();
+      return answer;
+    }
+};
